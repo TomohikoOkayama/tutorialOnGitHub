@@ -12,6 +12,12 @@ class QueryDuplicateFileNames改
         @"d:\program files\Microsoft Visual Studio 9.0\";
 
     int charsToSkip = startFolder.Length;
+    
+    //ディレクトリの存在チェック
+    if(! Directory.Exists(startFolder)){
+        Console.WriteLine("ディレクトリが存在しません");
+        return;
+    }
 
     // ファイルを列挙し、それらのFileInfoオブジェクトを取得
     IEnumerable<FileInfo> fileList =
