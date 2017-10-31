@@ -1,5 +1,6 @@
 using System;
-using System.Data.SqlClient;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace ConsoleApplication1
 {
@@ -7,37 +8,22 @@ namespace ConsoleApplication1
   {
     static void Main(string[] args)
     {
-      // 接続文字列
-      string connStr = @"
-        Data Source         = .\SQLEXPRESS;
-        AttachDbFilename    = |DataDirectory|\NORTHWND.MDF;
-        Integrated Security = True;
-        User Instance       = True;";
+      // NorthWindDataContextクラスはVS 2008により自動生成
+      NorthWindDataContext dc = new NorthWindDataContext();
 
-      using (SqlConnection conn = new SqlConnection(connStr))
+      // LINQによる問い合わせ
+      IEnumerable<Orders> records =
+            from n in dc.Orders
+            where n.ShipCountry == "Norway"
+            select n;
+
+      // 問い合わせ結果の表示
+      foreach (Orders r in records)
       {
-        // 発行するSQL文
-        string queryStr = @"
-          SELECT OrderID, EmployeeID, OrderDate, ShipCountry
-          FROM Orders
-          WHERE ShipCountry = 'Norway'";
-
-        SqlCommand command = new SqlCommand(queryStr, conn);
-
-        conn.Open(); // コネクションのオープン
-        SqlDataReader r = command.ExecuteReader(); // SQL文の実行
-
-        // 結果を1レコードずつ取得
-        while (r.Read())
-        {
-          Console.WriteLine("{0}, {1}, {2}, {3}",
-            r["OrderID"], r["EmployeeID"],
-            r["OrderDate"], r["ShipCountry"]);
-        }
-        r.Close();
-        conn.Close();
+        Console.WriteLine("{0}, {1}, {2}, {3}",
+          r.OrderID, r.EmployeeID, r.OrderDate, r.ShipCountry);
       }
-      Console.ReadLine(); // キーが押されるまで待機
+      Console.ReadLine();
     }
   }
 }
